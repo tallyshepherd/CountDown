@@ -1,0 +1,115 @@
+
+//is_leap determines if the year provided is a leap year or not
+bool is_leap(int year){
+  if(year%4 == 0 && year%100 != 0){
+    return true;
+  }
+  else if(year%4 == 0 && year%100 == 0 && year%400 == 0){
+    return true;
+  }
+  
+  else {
+    return false;
+  }
+}
+
+//leap_count determines how many days there are between two years
+//requires: year1 <= year2
+int leap_count(int year1, int year2){
+  if(year1 == year2){
+    return 0;
+  }
+  else if(is_leap(year1)){
+    return 366 + leap_count(year1 + 1, year2);
+  }
+  
+  else{
+    return 365 + leap_count(year1 + 1, year2);
+  }
+}
+
+//days_in_month returns how many days there are in a given month
+//requires: month to be a valid month number (1-12)
+int days_in_month(int month, int year){
+  
+  if(month == 2 && is_leap(year)){
+    return 29;
+  }
+  else if(month == 2){
+    return 28;
+  }
+  
+  else if(month%2 == 0 &&  month < 8){
+    return 30;
+  }
+  
+  else if(month%2 != 0 &&  month < 8){
+    return 31;
+  }
+  
+  else if(month%2 == 0 &&  month >= 8){
+    return 31;
+  }
+  
+  else {
+    return 30;
+  }
+  
+}
+
+//month_daycnt counts how many days there are between two months
+//requires: month1 <= month2
+int month_daycnt(int month1, int month2, int year){
+  if(month1 == month2){
+    return 0;
+  }
+  else {
+    return days_in_month(month1, year) + month_daycnt(month1 + 1, month2, year);
+  }
+}
+
+// number_days counts how many days there are between two dates excluding the 
+//last date
+//requires: starting date to be before end date, years to be above 1582
+int number_days(int s_yr, int s_mth, int s_day, 
+                   int e_yr, int e_mth, int e_day) {
+                     
+  int total_days = 0;
+  
+  if(s_yr == e_yr && s_mth == e_mth){
+    return total_days +=  e_day - s_day;
+  }
+  
+  if(s_yr == e_yr){
+    total_days += ((days_in_month(s_mth, s_yr) - s_day) + 1);
+    total_days += (month_daycnt(s_mth + 1, e_mth, e_yr) + e_day - 1);
+    return total_days;
+  }
+  
+  total_days += ((days_in_month(s_mth, s_yr) - s_day) + 1); // add beginning month days
+  
+  if(is_leap (s_yr) && s_yr != e_yr){
+      total_days += (366 - total_days) - (month_daycnt (1, s_mth, s_yr) + s_day - 1);//subtract days of month preceding
+  }
+  else if (s_yr != e_yr){
+    total_days += (365 - total_days) - (month_daycnt (1, s_mth, s_yr) + s_day - 1);
+  }
+  
+  if(s_yr != e_yr){
+    total_days += leap_count(s_yr + 1, e_yr);
+  }
+  
+  total_days += (month_daycnt(1, e_mth, e_yr) + e_day - 1);
+  return total_days;
+  
+}
+
+int main(void) {
+  assert(number_days(1984, 1, 1, 1984, 3, 21) == 80);
+  assert(number_days(2010, 1, 10, 2011, 2, 1) == 387);
+  assert(number_days(1984, 1, 1, 1989, 3, 21) == 1906);
+
+  // add your own tests below
+
+  return EXIT_SUCCESS;
+}
